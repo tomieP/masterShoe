@@ -1,7 +1,8 @@
+-- Active: 1772688043659@@127.0.0.1@3306
 PRAGMA foreign_keys = ON;
 
 -- PRODUCTS
-CREATE TABLE products(
+CREATE TABLE IF NOT EXISTS products(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     code TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
@@ -16,7 +17,7 @@ CREATE TABLE products(
 );
 
 -- PRODUCTS VARIANTS
-CREATE TABLE product_variants(
+CREATE TABLE IF NOT EXISTS product_variants(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id INTEGER NOT NULL,
     color TEXT NOT NULL,
@@ -25,11 +26,14 @@ CREATE TABLE product_variants(
     cost REAL NOT NULL CHECK(cost > 0),
     sku TEXT UNIQUE,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    
+    UNIQUE(product_id, color, size),
 
     FOREIGN KEY(product_id) REFERENCES products(id)
+    ON DELETE CASCADE
 );
 -- INVENTORY
-CREATE TABLE inventory(
+CREATE TABLE IF NOT EXISTS inventory(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     variant_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 0,
@@ -37,10 +41,11 @@ CREATE TABLE inventory(
     updated_at TEXT,
 
     FOREIGN KEY(variant_id) REFERENCES product_variants(id)
+    UNIQUE(variant_id)
 );
 
 -- INVOICES
-CREATE TABLE invoices(
+CREATE TABLE IF NOT EXISTS invoices(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     code TEXT UNIQUE,
     user_id INTEGER,
@@ -54,20 +59,19 @@ CREATE TABLE invoices(
 );
 
 -- INVOICE DETAILS
-CREATE TABLE invoice_items(
+CREATE TABLE IF NOT EXISTS invoice_items(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     invoice_id INTEGER NOT NULL,
     variant_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL CHECK(quantity > 0),
     price REAL NOT NULL,
-    subtotal REAL,
 
     FOREIGN KEY(invoice_id) REFERENCES invoices(id),
     FOREIGN KEY(variant_id) REFERENCES product_variants(id)
 );
 
 -- IMPORT ORDERS
-CREATE TABLE import_orders(
+CREATE TABLE IF NOT EXISTS import_orders(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     code TEXT UNIQUE NOT NULL,
     supplier_name TEXT NOT NULL,
@@ -82,7 +86,7 @@ CREATE TABLE import_orders(
 );
 
 -- IMPORT ITEMS
-CREATE TABLE import_items(
+CREATE TABLE IF NOT EXISTS import_items(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     import_order_id INTEGER NOT NULL,
     variant_id INTEGER NOT NULL,
@@ -94,7 +98,7 @@ CREATE TABLE import_items(
 );
 
 -- USERS
-CREATE TABLE users(
+CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     code TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,

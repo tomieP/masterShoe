@@ -29,8 +29,27 @@ class DatabaseManager:
             self.connection.close()
             self.connection = None
 
-if __name__ == "__main__":
-    db_manager = DatabaseManager()
-    db_manager.connect()
-    db_manager.init_database()
-    db_manager.close()
+    def excute_query(self, query, params = (), fetch = True):
+        '''
+        Docstring for execute_query
+        
+        :param self: 
+        :param query: 
+        :param params: tuple
+        :param fetch: quyêt định có lấy kết quả hay không
+            true -> tra ve toan bo ket qua (list[tuple])
+            false -> tra ve id mới nhất được thêm vào
+        '''
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query, params)
+            self.connection.commit() 
+            if fetch:
+                return cursor.fetchall()
+            return cursor.lastrowid 
+        except Exception as e:
+            print(f"error: {e}")
+            self.connection.rollback()
+            self.connection.close()
+            return None
+            
