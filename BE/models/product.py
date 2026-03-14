@@ -13,7 +13,7 @@ class Product:
     description: Optional[str] = None
     image_url: Optional[str] = None
     is_active: bool = True
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     
