@@ -12,3 +12,4 @@ class ProductVariant:
     cost: float = 0.0
     sku: Optional[str] = None
     created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
