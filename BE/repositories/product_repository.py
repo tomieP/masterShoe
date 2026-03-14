@@ -28,7 +28,7 @@ class ProductRepository:
             SELECT * FROM products WHERE id = ?
         """
         params = (product_id,)
-        rows = self.db.excute_query(query, params)
+        rows = self.db.execute_query(query, params)
 
         if not rows:
             return None
@@ -48,7 +48,7 @@ class ProductRepository:
             product.brand, product.description, product.image_url,
             product.is_active, product.created_at, product.updated_at
         )
-        product_id = self.db.excute_query(query, params, fetch = False)
+        product_id = self.db.execute_query(query, params, fetch = False)
         return product_id
     
     #GET ALL
@@ -60,7 +60,7 @@ class ProductRepository:
         ORDER BY created_at DESC
         """
 
-        rows = self.db.excute_query(query)
+        rows = self.db.execute_query(query)
 
         return [self._row_to_product(row) for row in rows]
     
@@ -76,7 +76,7 @@ class ProductRepository:
         params = (product.code, product.name, product.type, product.subtype,
                   product.brand, product.description, product.image_url,
                   int(product.is_active), product.id)
-        self.db.excute_query(query, params, fetch = False)
+        self.db.execute_query(query, params, fetch = False)
 
     #SOFT DELETE
     def deactive(self, product_id: int):
@@ -86,7 +86,7 @@ class ProductRepository:
             WHERE id =?
             """
         params = (product_id,)
-        self.db.excute_query(query, params, fetch= False)
+        self.db.execute_query(query, params, fetch= False)
 
     #SEARCH BY CODE
     def search_by_code(self, code: str):
@@ -94,7 +94,7 @@ class ProductRepository:
             SELECT * FROM products
             WHERE code = ?
             """
-        rows = self.db.excute_query(query, (code,), fetch = True)
+        rows = self.db.execute_query(query, (code,), fetch = True)
 
         if not rows:
             return None
