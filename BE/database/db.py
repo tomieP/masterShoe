@@ -29,7 +29,7 @@ class DatabaseManager:
             self.connection.close()
             self.connection = None
 
-    def excute_query(self, query, params = (), fetch = True):
+    def execute_query(self, query, params = (), fetch = True):
         '''
         Docstring for execute_query
         
@@ -37,7 +37,7 @@ class DatabaseManager:
         :param query: 
         :param params: tuple
         :param fetch: quyêt định có lấy kết quả hay không
-            true -> tra ve toan bo ket qua (list[tuple])
+            true -> tra ve toan bo ket qua (list[])
             false -> tra ve id mới nhất được thêm vào
         '''
         try:
@@ -53,3 +53,10 @@ class DatabaseManager:
             self.connection.close()
             return None
             
+if __name__ == "__main__":
+    db_manager = DatabaseManager()
+    db_manager.connect()
+    db_manager.init_database()
+
+
+    

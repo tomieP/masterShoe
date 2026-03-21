@@ -58,7 +58,7 @@ class InventoryRepository:
     def increase_stock(self, variant_id: int, amount: int):
         query = """
             UPDATE inventory
-            SET quantity = quantity + ?
+            SET quantity = quantity + ?,
             updated_at = CURRENT_TIMESTAMP
             WHERE variant_id = ?
             """
@@ -69,7 +69,7 @@ class InventoryRepository:
     def decrease_stock(self, variant_id: int, amount: int):
         query = """
             UPDATE inventory
-            SET quantity = quantity - ?
+            SET quantity = quantity - ?,
             updated_at = CURRENT_TIMESTAMP
             WHERE variant_id = ?
             """
