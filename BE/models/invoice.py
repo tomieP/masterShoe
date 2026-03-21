@@ -10,5 +10,6 @@ class Invoice:
     payment_method: str = ""
     payment_status: str = "finished"
     note: Optional[str] = None
-    total: Optional[float] = 0.00
+    total: Optional[float] = 0.0
+    is_active: bool = True
     created_at: Optional[datetime] = None

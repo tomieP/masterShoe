@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS invoices(
     payment_status TEXT DEFAULT 'finished' CHECK(payment_status IN ('finished','owe')),
     note TEXT,
     total REAL,
+    is_active INTEGER DEFAULT 1 CHECK( is_active IN (0,1)),
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY(user_id) REFERENCES users(id)
