@@ -16,6 +16,7 @@ class VariantRepository:
             price= row['price'],
             cost= row['cost'],
             sku= row['sku'],
+            is_active= row['is_active'],
             created_at= row['created_at'],
             updated_at= row['updated_at']
         )
@@ -32,6 +33,20 @@ class VariantRepository:
             return None
         return self._row_to_variant(rows[0])
     
+    #GET BY SKU
+    def get_by_sku(self, sku_id: str):
+        query ="""
+            SELECT * FROM product_variants
+            WHERE sku = ?
+            """
+        params = (sku_id,)
+        rows = self.db.execute_query(query, params, fetch = True)
+
+        if not rows:
+            return None
+        return self._row_to_variant(rows[0])
+    
+
     #GET BY PRODUCT
     def get_by_product(self, product_id: int):
         query = """
@@ -47,9 +62,9 @@ class VariantRepository:
     def create(self, variant: ProductVariant):
         query = """
             INSERT INTO product_variants(
-            product_id, size, color, price, cost, sku, created_at
+            product_id, size, color, price, cost, sku, is_active, created_at
             )
-            VALUES(?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?)
             """
         params = (
             variant.product_id, variant.size, variant.color, variant.price,
@@ -63,21 +78,22 @@ class VariantRepository:
         query = """
             UPDATE product_variants
             SET product_id = ?, size = ?, color = ?, price = ?,
-            cost = ?, sku = ?, created_at = ?, updated_at = CURRENT_TIMESTAMP
+            cost = ?, sku = ?, is_active = ?, created_at = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
             """
         params = (
             variant.product_id, variant.size, variant.color,
-            variant.price, variant.cost, variant.sku, variant.created_at,
+            variant.price, variant.cost, variant.sku, variant.is_active, variant.created_at,
             variant.id
         )
         self.db.execute_query(query, params, fetch=False)
     
-    #DELETE
+    #SOFT DELETE 
     def delete(self, variant_id: int):
         query = """
-            DELETE FROM product_variants
-            WHERE id = ?
+            UPDATE product_variants
+            SET is_active = 0
+            WHERE id = ?            
         """
         params = (variant_id,)
         self.db.execute_query(query, params, fetch = False)
