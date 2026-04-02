@@ -38,7 +38,7 @@ class DatabaseManager:
         :param params: tuple
         :param fetch: quyêt định có lấy kết quả hay không
             true -> tra ve toan bo ket qua (list[])
-            false -> tra ve id mới nhất được thêm vào
+            false -> tra ve id mới nhất được thêm (int)
         '''
         try:
             cursor = self.connection.cursor()
