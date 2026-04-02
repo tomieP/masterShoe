@@ -81,3 +81,68 @@ class InvoiceRepository:
         
         params = (invoice_id,)
         self.db.execute_query(query, params, fetch= False)
+
+    #GET ALL WITH FILTER
+    def get_all_with_filter(
+    self,
+    offset: int,
+    limit: int,
+    payment_method: str = None,
+    payment_status: str = None,
+    start_date: str = None,
+    end_date: str = None
+):
+        query = "SELECT * FROM invoices WHERE is_active = 1"
+        params = []
+
+        if payment_method:
+            query += " AND payment_method = ?"
+            params.append(payment_method)
+
+        if payment_status:
+            query += " AND payment_status = ?"
+            params.append(payment_status)
+
+        if start_date:
+            query += " AND created_at >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND created_at <= ?"
+            params.append(end_date)
+
+        query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
+
+        rows = self.db.execute_query(query, tuple(params), fetch=True)
+        return [self._row_to_invoice(row) for row in rows]
+
+    #COUNT WITH FILTER
+    def count_with_filter(
+    self,
+    payment_method: str = None,
+    payment_status: str = None,
+    start_date: str = None,
+    end_date: str = None
+):
+        query = "SELECT COUNT(*) as total FROM invoices WHERE is_active = 1"
+        params = []
+
+        if payment_method:
+            query += " AND payment_method = ?"
+            params.append(payment_method)
+
+        if payment_status:
+            query += " AND payment_status = ?"
+            params.append(payment_status)
+
+        if start_date:
+            query += " AND created_at >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND created_at <= ?"
+            params.append(end_date)
+
+        rows = self.db.execute_query(query, tuple(params), fetch=True)
+        return rows[0]["total"] if rows else 0
