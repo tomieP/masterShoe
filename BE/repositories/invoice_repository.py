@@ -16,6 +16,7 @@ class InvoiceRepository:
             payment_status= row['payment_status'],
             note= row['note'],
             total= row['total'],
+            is_active= row['is_active'],
             created_at= row['created_at']
         )
     
@@ -40,7 +41,7 @@ class InvoiceRepository:
     def get_by_id(self, invoice_id: int):
         query = """
             SELECT * FROM invoices
-            WHERE id = ?
+            WHERE id = ? AND is_active = 1
             """
         
         params = (invoice_id,)
@@ -50,6 +51,20 @@ class InvoiceRepository:
             return None
         return self._row_to_invoice(rows[0])
     
+    #GET BY CODE
+    def get_by_code(self, code: str):
+        query = """
+            SELECT * FROM invoices
+            WHERE code = ? AND is_active = 1
+            """
+        params = (code,)
+
+        rows = self.db.execute_query(query, params, fetch= True)
+
+        if not rows:
+            return None
+        return self._row_to_invoice(rows[0])
+
     #GET ALL
     def get_all(self):
         query = """
