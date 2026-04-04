@@ -42,16 +42,14 @@ class DatabaseManager:
         '''
         try:
             cursor = self.connection.cursor()
-            cursor.execute(query, params)
-            self.connection.commit() 
+            cursor.execute(query, params) 
             if fetch:
                 return cursor.fetchall()
             return cursor.lastrowid 
         except Exception as e:
             print(f"error: {e}")
             self.connection.rollback()
-            self.connection.close()
-            return None
+            raise 
             
 if __name__ == "__main__":
     db_manager = DatabaseManager()

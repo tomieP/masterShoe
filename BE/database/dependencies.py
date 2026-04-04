@@ -5,6 +5,8 @@ def get_db():
     db.connect()
     try:
         yield db
+    except Exception:
+        raise
     finally:
         db.close()
 
