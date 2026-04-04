@@ -1,5 +1,5 @@
-from models.invoice_detail import InvoiceDetail
-from database.db import DatabaseManager
+from BE.models.invoice_detail import InvoiceDetail
+from BE.database.db import DatabaseManager
 
 class InvoiceDetailRepository:
     def __init__(self, db_manager: DatabaseManager):

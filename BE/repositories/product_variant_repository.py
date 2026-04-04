@@ -1,5 +1,5 @@
-from models.product_variant import ProductVariant
-from database.db import DatabaseManager
+from BE.models.product_variant import ProductVariant
+from BE.database.db import DatabaseManager
 
 class VariantRepository:
     def __init__(self, db_manager: DatabaseManager):
@@ -62,13 +62,13 @@ class VariantRepository:
     def create(self, variant: ProductVariant):
         query = """
             INSERT INTO product_variants(
-            product_id, size, color, price, cost, sku, is_active, created_at
+            product_id, size, color, price, cost, sku, is_active, created_at, updated_at
             )
-            VALUES(?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?)
             """
         params = (
             variant.product_id, variant.size, variant.color, variant.price,
-            variant.cost, variant.sku, variant.created_at
+            variant.cost, variant.sku, variant.is_active, variant.created_at, variant.updated_at
         )
         variant_id = self.db.execute_query(query, params, fetch = False)
         return variant_id

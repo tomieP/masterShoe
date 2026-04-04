@@ -1,5 +1,5 @@
-from models.inventory import Inventory
-from database.db import DatabaseManager
+from BE.models.inventory import Inventory
+from BE.database.db import DatabaseManager
 
 class InventoryRepository:
     def __init__(self, db_manager: DatabaseManager):

@@ -1,5 +1,5 @@
-from models.product import Product
-from database.db import DatabaseManager
+from BE.models.product import Product
+from BE.database.db import DatabaseManager
 
 class ProductRepository:
     def __init__(self, db_manager: DatabaseManager):
@@ -70,12 +70,12 @@ class ProductRepository:
             UPDATE products
             SET 
             code = ?, name = ?, type = ?, subtype = ?, brand = ?,
-            description = ?, image_url = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+            description = ?, image_url = ?, updated_at = ?
             WHERE id = ?
         """
         params = (product.code, product.name, product.type, product.subtype,
-                  product.brand, product.description, product.image_url,
-                  int(product.is_active), product.id)
+                  product.brand, product.description, product.image_url, product.updated_at
+                  ,product.id)
         self.db.execute_query(query, params, fetch = False)
 
     #SOFT DELETE
