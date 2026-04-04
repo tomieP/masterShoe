@@ -1,20 +1,22 @@
 from datetime import datetime
 from typing import List
 
-from models.product import Product
-from models.product_variant import ProductVariant
-from models.inventory import Inventory
+from BE.models.product import Product
+from BE.models.product_variant import ProductVariant
+from BE.models.inventory import Inventory
 
-from repositories.product_repository import ProductRepository
-from repositories.product_variant_repository import VariantRepository
-from repositories.inventory_repository import InventoryRepository
+from BE.repositories.product_repository import ProductRepository
+from BE.repositories.product_variant_repository import VariantRepository
+from BE.repositories.inventory_repository import InventoryRepository
 
-from dtos.product_dto import ProductDTO, VariantDTO, InventoryDTO
-from utils.logger import get_logger
+from BE.database.db import DatabaseManager
+
+from BE.dtos.product_dto import ProductDTO, VariantDTO, InventoryDTO
+from BE.utils.logger import get_logger
 
 
 class ProductService:
-    def __init__(self, db_manager):
+    def __init__(self, db_manager: DatabaseManager):
         self.db = db_manager
         self.product_repo = ProductRepository(db_manager)
         self.variant_repo = VariantRepository(db_manager)
@@ -27,7 +29,7 @@ class ProductService:
         try:
             self.logger.info(f"Creating product: {product.code}")
 
-            # ===== VALIDATION =====
+            # =====PRODUCT VALIDATION =====
             if not product.code:
                 raise ValueError("Product code is required")
 
@@ -44,15 +46,22 @@ class ProductService:
 
             # ===== CREATE PRODUCT =====
             product.created_at = datetime.now()
+            product.updated_at = datetime.now()
             product_id = self.product_repo.create(product)
 
             # ===== CREATE VARIANTS + INVENTORY =====
             for v in variants:
+                # ===== VARIANT VALIDATION =====
                 if v.price <= 0:
                     raise ValueError("Variant price must be > 0")
 
+                existing_sku = self.variant_repo.get_by_sku(v.sku)
+                if existing_sku:
+                    raise ValueError("Variant SKU already exists")
+
                 v.product_id = product_id
                 v.created_at = datetime.now()
+                v.updated_at = datetime.now()
 
                 variant_id = self.variant_repo.create(v)
 
@@ -121,17 +130,40 @@ class ProductService:
         )
 
     # UPDATE PRODUCT
-    def update_product(self, product: Product):
-        self.logger.info(f"Updating product: {product.id}")
+    def update_product(self, product_id: int, update_data: dict):
+        try:
+            self.logger.info(f"Updating product: {product_id}")
 
-        if not product.id:
-            raise ValueError("Product ID is required")
+            # =====PRODUCT VALIDATION=====
+            if not product_id:
+                raise ValueError("Product ID is required")
 
-        existing = self.product_repo.get_by_id(product.id)
-        if not existing:
-            raise ValueError("Product not found")
+            existing = self.product_repo.get_by_id(product_id)
+            if not existing:
+                raise ValueError("Product not found")
 
-        self.product_repo.update(product)
+            # =====BEGIN TRANSACTION=====
+            conn = self.db.connection
+            conn.execute("BEGIN")
+
+            # =====UPDATE PRODUCT=====
+            for key, value in update_data.items():
+                setattr(existing, key, value)
+
+            existing.updated_at = datetime.now()
+
+            self.product_repo.update(existing)
+            # ====== COMMIT =====
+            conn.commit()
+            self.logger.info(f"Product updated successfully: {existing.id}")
+
+        except Exception as e:
+            self.logger.error(f"Update product failed: {str(e)}")
+
+            if self.db.connection:
+                self.db.connection.rollback()
+                
+            raise
 
     # =========================================
     # SOFT DELETE
@@ -139,4 +171,27 @@ class ProductService:
     def deactivate_product(self, product_id: int):
         self.logger.info(f"Deactivating product: {product_id}")
 
-        self.product_repo.deactive(product_id)
+        try:
+            # =====PRODUCT VALIDATION=====
+            existing = self.product_repo.get_by_id(product_id)
+            
+            if not existing:
+                raise ValueError("Product not found")
+            
+            # =====BEGIN TRANSACTION=====
+            conn = self.db.connection
+            conn.execute("BEGIN")
+        
+            # =====DEACTIVE PRODUCT=====
+            self.product_repo.deactive(product_id)
+
+            # =====COMMIT=====
+            conn.commit()
+            self.logger.info(f"Product deactivated successfully: {product_id}")
+
+        except Exception as e:
+            self.logger.error(f"Deactivate product failed: {str(e)}")
+
+            if self.db.connection:
+                self.db.connection.rollback()
+            raise

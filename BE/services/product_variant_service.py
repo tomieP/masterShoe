@@ -1,14 +1,14 @@
 from datetime import datetime
 from typing import List
 
-from models.product_variant import ProductVariant
-from models.inventory import Inventory
+from BE.models.product_variant import ProductVariant
+from BE.models.inventory import Inventory
 
-from repositories.product_repository import ProductRepository
-from repositories.product_variant_repository import VariantRepository
-from repositories.inventory_repository import InventoryRepository
+from BE.repositories.product_repository import ProductRepository
+from BE.repositories.product_variant_repository import VariantRepository
+from BE.repositories.inventory_repository import InventoryRepository
 
-from utils.logger import get_logger
+from BE.utils.logger import get_logger
 
 
 class VariantService:
@@ -46,6 +46,7 @@ class VariantService:
 
             # ===== CREATE VARIANT =====
             variant.created_at = datetime.now()
+            variant.updated_at = datetime.now() 
             variant_id = self.variant_repo.create(variant)
 
             # ===== CREATE INVENTORY =====

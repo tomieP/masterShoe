@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from repositories.inventory_repository import InventoryRepository
-from utils.logger import get_logger
+from BE.repositories.inventory_repository import InventoryRepository
+from BE.utils.logger import get_logger
 
 
 class InventoryService:
