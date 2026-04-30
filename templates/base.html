@@ -1,0 +1,240 @@
+{% load static %}
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}MasterShoe - Quản lý Tiệm Giày{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <!-- Alpine.js -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <!-- Main CSS -->
+    <link href="{% static 'css/main-styles.css' %}" rel="stylesheet" />
+
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body
+    data-user-roles="{% for group in user.groups.all %}{{ group.name }} {% endfor %}"
+    x-data="layout()"
+    @resize.window="isMobile = $el.innerWidth <= 991.98"
+  >
+    <!-- Sidebar Overlay (mobile) -->
+    <div
+      class="sidebar-overlay"
+      :class="{ show: sidebarOpen && isMobile }"
+      @click="closeSidebar()"
+    ></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" :class="{ show: sidebarOpen }">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <a href="{% url 'dashboard' %}" class="sidebar-brand">
+          <i class="bi bi-shoe"></i> MasterShoe
+        </a>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-nav">
+        {% if user.is_authenticated %}
+        <!-- Dashboard Section -->
+        <!-- <div class="sidebar-nav-section">Dashboard</div> -->
+        <li class="sidebar-nav-item">
+          <a href="{% url 'dashboard' %}" class="sidebar-nav-link">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+
+        <!-- Sales Section (Staff & Manager) -->
+        <!-- <div class="sidebar-nav-section mt-3">Bán hàng</div> -->
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link">
+            <i class="bi bi-cart-check"></i>
+            <span>Bán hàng (POS)</span>
+          </a>
+        </li>
+
+        <!-- Inventory Section (Staff & Manager) -->
+        <!-- <div class="sidebar-nav-section mt-3">Kho hàng</div> -->
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link">
+            <i class="bi bi-boxes"></i>
+            <span>Xem kho</span>
+          </a>
+        </li>
+
+        <!-- History (Staff & Manager) -->
+        {% if user.groups.filter|length == 1 and 'Staff' in user.groups.all %}
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link">
+            <i class="bi bi-clock-history"></i>
+            <span>Lịch sử hóa đơn</span>
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Manager Only Sections -->
+        {% if 'Manager' in user.groups.all or user.is_superuser %}
+        <!-- Products Section -->
+        <!-- <div class="sidebar-nav-section mt-3">Sản phẩm</div> -->
+        <li class="sidebar-nav-item">
+          <a href="{% url 'product_list' %}" class="sidebar-nav-link">
+            <i class="bi bi-tag"></i>
+            <span>Quản lý sản phẩm</span>
+          </a>
+        </li>
+
+        <!-- Purchase Section -->
+        <!-- <div class="sidebar-nav-section mt-3">Nhập hàng</div> -->
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link">
+            <i class="bi bi-arrow-down-square"></i>
+            <span>Phiếu nhập hàng</span>
+          </a>
+        </li>
+
+        <!-- Suppliers Section -->
+        <!-- <div class="sidebar-nav-section mt-3">Quản lý</div> -->
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link">
+            <i class="bi bi-building"></i>
+            <span>Nhà cung cấp</span>
+          </a>
+        </li>
+
+        <!-- Reports Section -->
+        <!-- <div class="sidebar-nav-section mt-3">Báo cáo</div> -->
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link">
+            <i class="bi bi-bar-chart"></i>
+            <span>Báo cáo & thống kê</span>
+          </a>
+        </li>
+
+        <!-- Admin Section -->
+        <!-- <div class="sidebar-nav-section mt-3">Hệ thống</div> -->
+        <li class="sidebar-nav-item">
+          <a
+            href="{% url 'admin:index' %}"
+            class="sidebar-nav-link"
+            target="_blank"
+          >
+            <i class="bi bi-gear"></i>
+            <span>Admin Panel</span>
+          </a>
+        </li>
+        {% endif %} {% endif %}
+      </nav>
+    </aside>
+
+    <!-- Top Navbar -->
+    <header class="top-navbar">
+      <!-- Sidebar Toggle Button -->
+      {% if user.is_authenticated %}
+      <button
+        class="navbar-toggle"
+        @click="toggleSidebar()"
+        title="Toggle sidebar"
+      >
+        <i class="bi bi-list"></i>
+      </button>
+      {% endif %}
+
+      <!-- Navbar Brand (mobile only) -->
+      <div class="navbar-brand d-lg-none ms-2">
+        <strong>MasterShoe</strong>
+      </div>
+
+      <!-- User Info & Logout -->
+      <div class="ms-auto d-flex align-items-center gap-3">
+        {% if user.is_authenticated %}
+        <div class="navbar-user">
+          <div>
+            <div class="navbar-user-name">{{ user.username }}</div>
+            <div class="navbar-user-role">
+              {% for group in user.groups.all %}
+              <span class="badge bg-info">{{ group.name }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <a href="{% url 'logout' %}" class="logout-btn" title="Logout">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Messages Framework -->
+    {% if messages %}
+    <div
+      class="container-fluid mt-2"
+      style="
+        margin-left: var(--sidebar-width);
+        margin-top: calc(var(--navbar-height) + 0.5rem);
+      "
+    >
+      {% for message in messages %}
+      <div
+        class="alert alert-{{ message.tags }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <main class="content-wrapper">{% block content %}{% endblock %}</main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div class="container-fluid">
+          <p class="mb-0">
+            &copy; 2026 MasterShoe - Hệ thống quản lý tiệm giày. All rights
+            reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Main JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

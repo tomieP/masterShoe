@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MasterShoe{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Chào mừng bạn đến hệ thống quản lý tiệm giày.</p>
+</div>
+
+<div class="row">
+    <!-- Statistics Cards -->
+    {% if 'Manager' in user.groups.all or user.is_superuser %}
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Doanh thu hôm nay</h6>
+                        <h3 class="mb-0">0 ₫</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-graph-up text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Lợi nhuận hôm nay</h6>
+                        <h3 class="mb-0">0 ₫</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-cash-coin text-info" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Số đơn bán</h6>
+                        <h3 class="mb-0">0</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-cart-check text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Hàng sắp hết</h6>
+                        <h3 class="mb-0">0</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Doanh thu hôm nay</h6>
+                        <h3 class="mb-0">0 ₫</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-graph-up text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Số đơn bán</h6>
+                        <h3 class="mb-0">0</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-cart-check text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Tồn kho</h6>
+                        <h3 class="mb-0">0</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-boxes text-secondary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Welcome Message -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h3 class="mb-3">Chào mừng, <strong>{{ user.get_full_name|default:user.username }}</strong>!</h3>
+                <p class="text-muted mb-0">
+                    {% if 'Manager' in user.groups.all or user.is_superuser %}
+                    Bạn là Manager. Bạn có quyền truy cập vào tất cả các chức năng của hệ thống bao gồm quản lý sản phẩm, nhập hàng, báo cáo và quản lý tài khoản.
+                    {% else %}
+                    Bạn là nhân viên bán hàng. Bạn có quyền truy cập vào các chức năng bán hàng, xem kho và xem lịch sử hóa đơn.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,426 @@
+/**
+ * MasterShoe - Main Stylesheet
+ * Custom styles for the shoe store management application
+ */
+
+/* ========================================
+   CSS Variables (Color Palette)
+   ======================================== */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+
+    /* Sidebar colors */
+    --sidebar-bg: #2c3e50;
+    --sidebar-hover: #34495e;
+    --sidebar-active: #1a252f;
+    --sidebar-text: #ecf0f1;
+    --sidebar-text-muted: #bdc3c7;
+
+    /* Layout */
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 0px;
+    --navbar-height: 56px;
+}
+
+/* ========================================
+   Base Layout
+   ======================================== */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f6fa;
+    overflow-x: hidden;
+}
+
+/* ========================================
+   Sidebar Styles
+   ======================================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    background: var(--sidebar-active);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-brand {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-brand:hover {
+    color: var(--info-color);
+}
+
+.sidebar-nav {
+    padding: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.sidebar-nav-section {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sidebar-text-muted);
+    font-weight: 600;
+}
+
+.sidebar-nav-item {
+    margin: 0;
+}
+
+.sidebar-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+    gap: 0.75rem;
+}
+
+.sidebar-nav-link:hover {
+    background: var(--sidebar-hover);
+    color: #fff;
+}
+
+.sidebar-nav-link.active {
+    background: var(--sidebar-active);
+    color: var(--info-color);
+    border-left: 3px solid var(--info-color);
+}
+
+.sidebar-nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Main content area */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* Content wrapper with padding */
+.content-wrapper {
+    padding: 1.5rem;
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+}
+
+/* ========================================
+   Top Navbar
+   ======================================== */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--navbar-height);
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 999;
+    transition: left 0.3s ease-in-out;
+}
+
+.navbar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--dark-color);
+}
+
+.navbar-toggle:hover {
+    background: var(--light-color);
+    border-radius: 4px;
+}
+
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-user-name {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.navbar-user-role {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+}
+
+.logout-btn {
+    color: var(--danger-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+}
+
+.logout-btn:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+/* ========================================
+   Page Header
+   ======================================== */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+}
+
+/* ========================================
+   Cards
+   ======================================== */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.15s;
+}
+
+.card:hover {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* ========================================
+   Tables
+   ======================================== */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
+    color: var(--secondary-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.04);
+}
+
+/* ========================================
+   Status Badges
+   ======================================== */
+.badge-status {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+.badge-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.badge-completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge-canceled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Low stock warning */
+.low-stock {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.app-footer {
+    background: #fff;
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+.app-footer p {
+    margin-bottom: 0;
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Hide sidebar on mobile */
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .top-navbar {
+        left: 0;
+    }
+
+    /* Sidebar overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .content-wrapper {
+        padding: 1rem;
+        padding-top: calc(var(--navbar-height) + 1rem);
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fw-semibold {
+    font-weight: 600;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Animation */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading spinner */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .top-navbar,
+    .btn,
+    .no-print {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .content-wrapper {
+        padding-top: 0 !important;
+    }
+}

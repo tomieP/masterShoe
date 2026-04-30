@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - MasterShoe{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Product Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Thông tin sản phẩm</h5>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'product_edit' product.pk %}" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil"></i> Sửa
+                        </a>
+                        <form action="{% url 'product_delete' product.pk %}" method="post" class="d-inline" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if product.image %}
+                    <div class="mb-3 text-center">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                    {% endif %}
+
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <th class="align-middle">Mã:</th>
+                                <td class="align-middle"><strong>{{ product.code }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Tên:</th>
+                                <td class="align-middle"><strong>{{ product.name }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Thương hiệu:</th>
+                                <td class="align-middle">{{ product.brand|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Loại:</th>
+                                <td class="align-middle">{{ product.type }}</td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Phân loại phụ:</th>
+                                <td class="align-middle">{{ product.subtype|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Mô tả:</th>
+                                <td>{{ product.description|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Trạng thái:</th>
+                                <td>
+                                    {% if product.is_active %}
+                                    <span class="badge bg-success">Hoạt động</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Ngừng hoạt động</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Tạo lúc:</th>
+                                <td>{{ product.created_at|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="align-middle">Cập nhật:</th>
+                                <td>{{ product.updated_at|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="btn-group w-100">
+                        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variants Section -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Biến thể sản phẩm ({{ variants.count }})</h5>
+                    <a href="{% url 'variant_create' product.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-lg"></i> Thêm biến thể
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if variants %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="border-0">Màu</th>
+                                    <th class="border-0">Size</th>
+                                    <th class="border-0">SKU</th>
+                                    <th class="border-0 text-end">Giá nhập</th>
+                                    <th class="border-0 text-end">Giá bán</th>
+                                    <th class="border-0 text-center">Tồn kho</th>
+                                    <th class="border-0 text-center">Tối thiểu</th>
+                                    <th class="border-0">Trạng thái</th>
+                                    <th class="border-0 text-end">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for variant in variants %}
+                                <tr class="{% if variant.stock_quantity < variant.min_quantity %}table-warning{% endif %}">
+                                    <td>{{ variant.color }}</td>
+                                    <td>{{ variant.size }}</td>
+                                    <td><code>{{ variant.sku }}</code></td>
+                                    <td class="text-end">{{ variant.import_price|floatformat:0 }}đ</td>
+                                    <td class="text-end"><strong>{{ variant.selling_price|floatformat:0 }}đ</strong></td>
+                                    <td class="text-center">
+                                        {% if variant.stock_quantity < variant.min_quantity %}
+                                        <span class="badge bg-warning">{{ variant.stock_quantity }}</span>
+                                        {% elif variant.stock_quantity == 0 %}
+                                        <span class="badge bg-danger">{{ variant.stock_quantity }}</span>
+                                        {% else %}
+                                        <span class="badge bg-info">{{ variant.stock_quantity }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">{{ variant.min_quantity }}</td>
+                                    <td>
+                                        {% if variant.is_active %}
+                                        <span class="badge bg-success">Hoạt động</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Không hoạt động</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'variant_edit' variant.pk %}" class="btn btn-outline-warning btn-sm">
+                                                <i class="bi bi-pencil"></i> Sửa
+                                            </a>
+                                            <form action="{% url 'variant_delete' variant.pk %}" method="post" class="d-inline" onclick="return confirm('Bạn có chắc chắn muốn xóa biến thể này?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i> Xóa
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center">
+                        <p class="text-muted mb-3">Chưa có biến thể nào cho sản phẩm này.</p>
+                        <a href="{% url 'variant_create' product.pk %}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg"></i> Tạo biến thể
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

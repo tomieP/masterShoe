@@ -29,6 +29,27 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.code} - {self.name}"
 
+    @property
+    def total_stock(self):
+        """Tính tổng tồn kho của tất cả biến thể"""
+        return sum(variant.stock_quantity for variant in self.variants.all())
+
+    @property
+    def min_price(self):
+        """Lấy giá bán thấp nhất trong tất cả biến thể"""
+        variants = self.variants.all()
+        if variants:
+            return min(variant.selling_price for variant in variants)
+        return None
+
+    @property
+    def max_price(self):
+        """Lấy giá bán cao nhất trong tất cả biến thể"""
+        variants = self.variants.all()
+        if variants:
+            return max(variant.selling_price for variant in variants)
+        return None
+
     class Meta:
         verbose_name = "Sản phẩm"
         verbose_name_plural = "Sản phẩm"
