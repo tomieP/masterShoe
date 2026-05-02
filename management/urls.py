@@ -2,7 +2,7 @@
 URL configuration for management app.
 """
 from django.urls import path
-from management.views import auth, dashboard, products
+from management.views import auth, dashboard, products, inventory
 
 urlpatterns = [
 
@@ -12,6 +12,10 @@ urlpatterns = [
 
     #Dashboard
     path('', dashboard.dashboard_view, name='dashboard'),
+
+    #Inventory
+    path('inventory/', inventory.inventory_list, name='inventory_list'),
+    path('inventory/low-stock/', inventory.inventory_low_stock, name='inventory_low_stock'),
 
     #Products
     path('products/', products.product_list, name='product_list'),
