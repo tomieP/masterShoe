@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load sales_tags %}
+
+{% block title %}Chi tiết hóa đơn {{ order.code }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Chi tiết hóa đơn</h2>
+        <a href="{% url 'sales_print' order.id %}" target="_blank" class="btn btn-primary">
+            🖨️ In hóa đơn
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Thông tin hóa đơn</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Mã hóa đơn:</strong> {{ order.code }}</p>
+                    <p><strong>Ngày tạo:</strong> {{ order.sale_date|date:"d/m/Y H:i:s" }}</p>
+                    <p><strong>Người bán:</strong> {{ order.created_by.get_full_name|default:order.created_by.username }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Khách hàng:</strong> {{ order.customer_name|default:"Khách vãng lai" }}</p>
+                    <p><strong>SĐT:</strong> {{ order.customer_phone|default:"—" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Chi tiết đơn hàng</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">Size</th>
+                            <th class="text-center">Màu</th>
+                            <th class="text-end">Giá bán</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Thành tiền</th>
+                            {% if is_manager %}<th class="text-end">Lợi nhuận</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.variant.product.name }}</strong><br>
+                                <small class="text-muted">{{ item.variant.product.code }}</small>
+                            </td>
+                            <td class="text-center">{{ item.variant.size }}</td>
+                            <td class="text-center">{{ item.variant.color }}</td>
+                            <td class="text-end">{{ item.selling_price_at_time|floatformat:0 }}đ</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end"><strong>{{ item.subtotal|floatformat:0 }}đ</strong></td>
+                            {% if is_manager %}
+                            <td class="text-end text-success">
+                                <strong>+{{ item|calculate_profit|floatformat:0 }}đ</strong>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6"></div>
+                <div class="col-md-6">
+                    <table class="table table-sm">
+                        <tr class="border-top">
+                            <td><strong>Tổng cộng:</strong></td>
+                            <td class="text-end"><strong class="text-primary" style="font-size: 1.2em;">{{ order.total_amount|floatformat:0 }}đ</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phương thức:</strong></td>
+                            <td class="text-end">
+                                {% if order.payment_method == 'cash' %}Tiền mặt{% else %}Chuyển khoản{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Trạng thái:</strong></td>
+                            <td class="text-end">
+                                {% if order.payment_status == 'finished' %}
+                                    <span class="badge bg-success">Đã thanh toán</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Còn nợ</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'sales_list' %}" class="btn btn-secondary">
+        ← Quay lại
+    </a>
+</div>
+{% endblock %}

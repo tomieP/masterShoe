@@ -1,0 +1,271 @@
+{% extends "base.html" %} {% block title %}Dashboard - MasterShoe{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Dashboard</h1>
+  <p class="page-subtitle">Chào mừng bạn đến hệ thống quản lý tiệm giày.</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+  <div class="col-md-6 col-lg-3 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <h6 class="card-title text-muted mb-1">Doanh thu hôm nay</h6>
+            <h3 class="mb-0">{{ revenue|floatformat:0 }} ₫</h3>
+          </div>
+          <div class="ms-auto">
+            <i class="bi bi-graph-up text-success" style="font-size: 2rem"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-3 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <h6 class="card-title text-muted mb-1">Lợi nhuận hôm nay</h6>
+            <h3 class="mb-0">{{ profit|floatformat:0 }} ₫</h3>
+          </div>
+          <div class="ms-auto">
+            <i class="bi bi-cash-coin text-info" style="font-size: 2rem"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-3 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <h6 class="card-title text-muted mb-1">Số đơn bán</h6>
+            <h3 class="mb-0">{{ order_count }}</h3>
+          </div>
+          <div class="ms-auto">
+            <i
+              class="bi bi-cart-check text-primary"
+              style="font-size: 2rem"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-3 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <h6 class="card-title text-muted mb-1">Hàng sắp hết</h6>
+            <h3 class="mb-0">{{ low_stock_count }}</h3>
+          </div>
+          <div class="ms-auto">
+            <i
+              class="bi bi-exclamation-triangle text-warning"
+              style="font-size: 2rem"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row mt-4">
+  <div class="col-lg-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Doanh thu 7 ngày gần nhất</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="revenue-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Top 5 sản phẩm bán chạy (tháng)</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="top-products-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Low Stock Alert Section -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-exclamation-circle text-warning"></i> Cảnh báo hàng
+          sắp hết (Top 10)
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if low_stock_items %}
+        <div class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead class="table-light">
+              <tr>
+                <th>Sản phẩm</th>
+                <th>Màu</th>
+                <th>Size</th>
+                <th>SKU</th>
+                <th class="text-center">Tồn kho</th>
+                <th class="text-center">Tồn tối thiểu</th>
+                <th class="text-end">Giá bán</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in low_stock_items %}
+              <tr
+                class="{% if item.stock_quantity < item.min_quantity %}table-warning{% endif %}"
+              >
+                <td>
+                  <strong>{{ item.product.name }}</strong>
+                </td>
+                <td>{{ item.color }}</td>
+                <td>{{ item.size }}</td>
+                <td><code>{{ item.sku }}</code></td>
+                <td class="text-center">
+                  <span
+                    class="badge {% if item.stock_quantity < item.min_quantity %}bg-danger{% else %}bg-success{% endif %}"
+                  >
+                    {{ item.stock_quantity }}
+                  </span>
+                </td>
+                <td class="text-center">{{ item.min_quantity }}</td>
+                <td class="text-end">
+                  {{ item.selling_price|floatformat:0 }} ₫
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info mb-0">
+          <i class="bi bi-info-circle"></i> Không có sản phẩm nào sắp hết hàng.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reports Links -->
+<div class="row mt-4 mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Báo cáo & Thống kê</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-4">
+            <a
+              href="{% url 'reports_daily' %}"
+              class="btn btn-outline-primary btn-sm w-100"
+            >
+              <i class="bi bi-calendar-event"></i> Báo cáo theo ngày
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a
+              href="{% url 'reports_period' %}"
+              class="btn btn-outline-primary btn-sm w-100"
+            >
+              <i class="bi bi-calendar-range"></i> Báo cáo theo khoảng thời gian
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a
+              href="{% url 'reports_top_products' %}"
+              class="btn btn-outline-primary btn-sm w-100"
+            >
+              <i class="bi bi-bar-chart"></i> Top sản phẩm bán chạy
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Revenue Chart
+      const revenueCtx = document.getElementById('revenue-chart');
+      if (revenueCtx) {
+          const revenueData = {{ revenue_chart_data|safe }};
+          new Chart(revenueCtx, {
+              type: 'bar',
+              data: revenueData,
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  plugins: {
+                      legend: {
+                          display: true,
+                          position: 'top',
+                      },
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          ticks: {
+                              callback: function(value) {
+                                  return new Intl.NumberFormat('vi-VN').format(value) + ' ₫';
+                              }
+                          }
+                      }
+                  }
+              }
+          });
+      }
+
+      // Top Products Chart
+      const topProductsCtx = document.getElementById('top-products-chart');
+      if (topProductsCtx) {
+          const topProductsData = {{ top_products_chart_data|safe }};
+          new Chart(topProductsCtx, {
+              type: 'bar',
+              data: topProductsData,
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  indexAxis: 'y',
+                  plugins: {
+                      legend: {
+                          display: true,
+                          position: 'top',
+                      },
+                  },
+                  scales: {
+                      x: {
+                          beginAtZero: true,
+                          ticks: {
+                              callback: function(value) {
+                                  return Math.round(value) + ' cái';
+                              }
+                          }
+                      }
+                  }
+              }
+          });
+      }
+  });
+</script>
+{% endblock %}

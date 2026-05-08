@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa đơn {{ order.code }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            max-width: 80mm;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+        .header h3 {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        .header p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+        .info-section {
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #999;
+            padding-bottom: 8px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+        .info-row-left {
+            font-weight: bold;
+        }
+        .info-row-right {
+            text-align: right;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 12px;
+        }
+        .items-table thead {
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+        .items-table th {
+            padding: 4px 2px;
+            text-align: left;
+            font-weight: bold;
+        }
+        .items-table td {
+            padding: 4px 2px;
+            border-bottom: 1px dotted #999;
+        }
+        .items-table .text-right {
+            text-align: right;
+        }
+        .items-table .text-center {
+            text-align: center;
+        }
+        .total-section {
+            border-top: 2px solid #333;
+            margin-top: 12px;
+            padding-top: 8px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .total-amount {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px dashed #333;
+            font-size: 12px;
+        }
+        .footer p {
+            margin: 3px 0;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3>QUẢN LÝ TIỆM GIÀY</h3>
+        <p>HÓA ĐƠN BÁN HÀNG</p>
+    </div>
+
+    <div class="info-section">
+        <div class="info-row">
+            <span class="info-row-left">Mã HĐ:</span>
+            <span class="info-row-right">{{ order.code }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-row-left">Ngày:</span>
+            <span class="info-row-right">{{ order.sale_date|date:"d/m/Y H:i" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-row-left">Khách:</span>
+            <span class="info-row-right">{{ order.customer_name|default:"Khách vãng lai" }}</span>
+        </div>
+        {% if order.customer_phone %}
+        <div class="info-row">
+            <span class="info-row-left">SĐT:</span>
+            <span class="info-row-right">{{ order.customer_phone }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th class="text-right" style="width: 50px;">Giá</th>
+                <th class="text-center" style="width: 35px;">SL</th>
+                <th class="text-right" style="width: 60px;">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    <strong>{{ item.variant.product.name|truncatewords:2 }}</strong><br>
+                    <small>{{ item.variant.color }} / {{ item.variant.size }}</small>
+                </td>
+                <td class="text-right">{{ item.selling_price_at_time|floatformat:0 }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">{{ item.subtotal|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div class="total-row">
+            <span>Tổng cộng:</span>
+            <span>{{ order.total_amount|floatformat:0 }}đ</span>
+        </div>
+        <div class="info-row">
+            <span>PTTT:</span>
+            <span>{% if order.payment_method == 'cash' %}Tiền mặt{% else %}Chuyển khoản{% endif %}</span>
+        </div>
+        <div class="info-row">
+            <span>Trạng thái:</span>
+            <span>{% if order.payment_status == 'finished' %}Đã thanh toán{% else %}Còn nợ{% endif %}</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Cảm ơn quý khách!</p>
+        <p>Hẹn gặp lại</p>
+        <p style="margin-top: 10px; font-size: 11px; color: #999;">{{ order.sale_date|date:"d/m/Y H:i:s" }}</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button onclick="window.print()">🖨️ In</button>
+        <button onclick="window.close()">Đóng</button>
+    </div>
+</body>
+</html>

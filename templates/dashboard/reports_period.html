@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Báo cáo định kỳ - MasterShoe{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Báo cáo theo khoảng thời gian</h1>
+    <p class="page-subtitle">Xem thống kê doanh thu và lợi nhuận trong một giai đoạn.</p>
+</div>
+
+<!-- Date Range Picker Form -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label for="date_from" class="form-label">Từ ngày</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="date_from"
+                            name="date_from"
+                            value="{{ date_from|date:'Y-m-d' }}"
+                        />
+                    </div>
+                    <div class="col-md-5">
+                        <label for="date_to" class="form-label">Đến ngày</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="date_to"
+                            name="date_to"
+                            value="{{ date_to|date:'Y-m-d' }}"
+                        />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Xem báo cáo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <h5 class="text-muted">
+        Kết quả từ <strong class="text-primary">{{ date_from|date:"d/m/Y" }}</strong> đến <strong class="text-primary">{{ date_to|date:"d/m/Y" }}</strong>
+    </h5>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-2">Số đơn bán</h6>
+                        <h2 class="mb-0">{{ order_count }}</h2>
+                    </div>
+                    <i class="bi bi-cart-check" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-2">Tổng doanh thu</h6>
+                        <h2 class="mb-0">{{ revenue|floatformat:0 }} ₫</h2>
+                    </div>
+                    <i class="bi bi-currency-dollar" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-2">Tổng lợi nhuận</h6>
+                        <h2 class="mb-0">{{ profit|floatformat:0 }} ₫</h2>
+                    </div>
+                    <i class="bi bi-graph-up-arrow" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Dashboard -->
+<div class="mt-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Quay về Dashboard
+    </a>
+</div>
+{% endblock %}

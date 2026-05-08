@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Top sản phẩm bán chạy - MasterShoe{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Top sản phẩm bán chạy</h1>
+    <p class="page-subtitle">Xem danh sách sản phẩm bán chạy nhất theo khoảng thời gian.</p>
+</div>
+
+<!-- Filter Form -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="date_from" class="form-label">Từ ngày</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="date_from"
+                            name="date_from"
+                            value="{{ date_from|date:'Y-m-d' }}"
+                        />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="date_to" class="form-label">Đến ngày</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="date_to"
+                            name="date_to"
+                            value="{{ date_to|date:'Y-m-d' }}"
+                        />
+                    </div>
+                    <div class="col-md-2">
+                        <label for="limit" class="form-label">Số lượng</label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="limit"
+                            name="limit"
+                            value="{{ limit }}"
+                            min="1"
+                            max="50"
+                        />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Xem báo cáo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Biểu đồ top sản phẩm bán chạy</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="top-products-chart" style="max-height: 400px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Danh sách sản phẩm bán chạy</h5>
+            </div>
+            <div class="card-body">
+                {% if top_products %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Sản phẩm</th>
+                                <th>Màu</th>
+                                <th>Size</th>
+                                <th>SKU</th>
+                                <th class="text-center">Số lượng bán</th>
+                                <th class="text-end">Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in top_products %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><strong>{{ item.product_name }}</strong></td>
+                                <td>{{ item.color }}</td>
+                                <td>{{ item.size }}</td>
+                                <td><code>{{ item.sku }}</code></td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary">{{ item.quantity }}</span>
+                                </td>
+                                <td class="text-end">{{ item.revenue|floatformat:0 }} ₫</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle"></i> Không có dữ liệu trong khoảng thời gian này.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Dashboard -->
+<div class="mt-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Quay về Dashboard
+    </a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('top-products-chart');
+    if (ctx) {
+        const chartData = {{ chart_data|safe }};
+        new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return Math.round(value) + ' cái';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

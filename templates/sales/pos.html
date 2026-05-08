@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}POS - Bán hàng{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Left Column: Product Search -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🔍 Tìm kiếm sản phẩm</h5>
+                </div>
+                <div class="card-body">
+                    <input type="text"
+                           id="search-input"
+                           class="form-control form-control-lg"
+                           placeholder="Tên sản phẩm, mã SKU, thương hiệu..."
+                           hx-get="{% url 'search_products' %}"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#search-results"
+                           hx-indicator=".htmx-request">
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div id="search-results" class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Kết quả tìm kiếm</h5>
+                </div>
+                <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                    <p class="text-muted text-center">Nhập tên sản phẩm để tìm kiếm...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Cart & Checkout -->
+        <div class="col-lg-6">
+            <div x-data="cartStore()" x-init="loadCart()">
+                <!-- Shopping Cart -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">🛒 Giỏ hàng (<span x-text="cart.length"></span>)</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        <template x-if="cart.length === 0">
+                            <p class="text-center text-muted">Giỏ hàng trống</p>
+                        </template>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover" x-show="cart.length > 0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th style="width: 70px;">SL</th>
+                                        <th style="width: 100px;">Giá</th>
+                                        <th style="width: 40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(item, index) in cart" :key="index">
+                                        <tr>
+                                            <td>
+                                                <small>
+                                                    <strong x-text="item.product_name"></strong><br>
+                                                    <span class="text-muted" x-text="`${item.color} / ${item.size}`"></span>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <input type="number"
+                                                       class="form-control form-control-sm"
+                                                       x-model.number="item.quantity"
+                                                       @change="calculateTotal()"
+                                                       min="1">
+                                            </td>
+                                            <td>
+                                                <small x-text="formatCurrency(item.price * item.quantity)"></small>
+                                            </td>
+                                            <td>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-danger"
+                                                        @click="removeItem(index)">
+                                                    🗑️
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <template x-if="cart.length > 0">
+                            <button type="button" class="btn btn-warning btn-sm w-100 mt-2" @click="clearCart()">
+                                Xóa tất cả
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Cart Total -->
+                    <div class="card-footer bg-light">
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Tổng cộng:</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong class="text-success" style="font-size: 1.2em;" x-text="formatCurrency(totalAmount)"></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">💳 Thanh toán</h5>
+                    </div>
+                    <div class="card-body">
+                        <form @submit.prevent="submitCheckout()" method="post" action="{% url 'checkout' %}">
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label class="form-label">Tên khách hàng (tùy chọn)</label>
+                                <input type="text"
+                                       name="customer_name"
+                                       class="form-control"
+                                       placeholder="Nhập tên khách hàng">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">SĐT (tùy chọn)</label>
+                                <input type="text"
+                                       name="customer_phone"
+                                       class="form-control"
+                                       placeholder="Nhập số điện thoại">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Phương thức thanh toán</label>
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="payment_method"
+                                               value="cash"
+                                               id="method-cash"
+                                               checked>
+                                        <label class="form-check-label" for="method-cash">
+                                            Tiền mặt
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="payment_method"
+                                               value="transfer"
+                                               id="method-transfer">
+                                        <label class="form-check-label" for="method-transfer">
+                                            Chuyển khoản
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Trạng thái thanh toán</label>
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="payment_status"
+                                               value="finished"
+                                               id="status-finished"
+                                               checked>
+                                        <label class="form-check-label" for="status-finished">
+                                            Đã thanh toán
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="payment_status"
+                                               value="owe"
+                                               id="status-owe">
+                                        <label class="form-check-label" for="status-owe">
+                                            Còn nợ
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden items data -->
+                            <input type="hidden" name="items" x-model="itemsJson">
+
+                            <button type="submit"
+                                    class="btn btn-success w-100 btn-lg"
+                                    :disabled="cart.length === 0"
+                                    x-text="cart.length === 0 ? '(Thêm sản phẩm)' : '✓ Thanh toán'">
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cartStore() {
+    return {
+        cart: [],
+        totalAmount: 0,
+        itemsJson: '[]',
+
+        addItem(variantId, productName, color, size, price) {
+            // Check if item already exists
+            const existing = this.cart.find(item => item.variant_id === variantId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                this.cart.push({
+                    variant_id: variantId,
+                    product_name: productName,
+                    color: color,
+                    size: size,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            this.calculateTotal();
+            this.saveCart();
+        },
+
+        removeItem(index) {
+            this.cart.splice(index, 1);
+            this.calculateTotal();
+            this.saveCart();
+        },
+
+        clearCart() {
+            if (confirm('Bạn chắc chắn muốn xóa tất cả sản phẩm?')) {
+                this.cart = [];
+                this.calculateTotal();
+                this.saveCart();
+            }
+        },
+
+        calculateTotal() {
+            this.totalAmount = this.cart.reduce((sum, item) => {
+                return sum + (item.price * item.quantity);
+            }, 0);
+            this.updateItemsJson();
+        },
+
+        updateItemsJson() {
+            this.itemsJson = JSON.stringify(
+                this.cart.map(item => ({
+                    variant_id: item.variant_id,
+                    quantity: item.quantity
+                }))
+            );
+        },
+
+        saveCart() {
+            localStorage.setItem('pos_cart', JSON.stringify(this.cart));
+        },
+
+        loadCart() {
+            const saved = localStorage.getItem('pos_cart');
+            if (saved) {
+                this.cart = JSON.parse(saved);
+                this.calculateTotal();
+            }
+        },
+
+        formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        },
+
+        submitCheckout() {
+            if (this.cart.length === 0) {
+                alert('Giỏ hàng trống!');
+                return;
+            }
+            document.querySelector('form').submit();
+        }
+    }
+}
+</script>
+
+<!-- Global function to add items from search results -->
+<script>
+window.addToCart = function(variantId, productName, color, size, price) {
+    const app = Alpine.store('cart') || document.querySelector('[x-data="cartStore()"]').__x_data;
+    if (app) {
+        app.addItem(variantId, productName, color, size, price);
+        // Show feedback
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Đã thêm!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 1500);
+    }
+};
+</script>
+{% endblock %}
