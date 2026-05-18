@@ -19,7 +19,7 @@ def product_list(request):
     query = request.GET.get('search', '')
     filter_type = request.GET.get('type', '')
 
-    products = Product.objects.all().order_by('-updated_at')
+    products = Product.objects.all().prefetch_related('variants').order_by('-updated_at')
 
     # Search by name, brand, code
     if query:
