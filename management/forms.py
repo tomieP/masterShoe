@@ -1,5 +1,7 @@
 from django import forms
-from .models import Product, ProductVariant
+from django.contrib.auth.models import User, Group
+
+from management.models import Product, ProductVariant, PurchaseOrder, PurchaseOrderItem, Supplier
 
 
 class ProductForm(forms.ModelForm):
@@ -104,3 +106,159 @@ class ProductVariantForm(forms.ModelForm):
             'min_quantity': 'Tồn tối thiểu',
             'is_active': 'Cho phép bán'
         }
+
+
+class PurchaseOrderForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = ['supplier', 'notes', 'status']
+        widgets = {
+            'supplier': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Nhập ghi chú phiếu nhập...'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-select',
+            })
+        }
+        labels = {
+            'supplier': 'Nhà cung cấp',
+            'notes': 'Ghi chú',
+            'status': 'Trạng thái'
+        }
+
+
+class PurchaseOrderItemForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrderItem
+        fields = ['variant', 'quantity', 'actual_import_price']
+        widgets = {
+            'variant': forms.Select(attrs={
+                'class': 'form-select select-variant',
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+            }),
+            'actual_import_price': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+            })
+        }
+        labels = {
+            'variant': 'Sản phẩm',
+            'quantity': 'SL',
+            'actual_import_price': 'Giá nhập'
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Chỉ hiển thị các biến thể đang hoạt động
+        self.fields['variant'].queryset = ProductVariant.objects.filter(is_active=True).select_related('product')
+
+
+from django.forms import inlineformset_factory
+PurchaseOrderItemFormSet = inlineformset_factory(
+    PurchaseOrder,
+    PurchaseOrderItem,
+    form=PurchaseOrderItemForm,
+    extra=1,
+    can_delete=True
+)
+
+
+class SalesOrderForm(forms.Form):
+    """Form for sales order checkout"""
+    customer_name = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Tên khách hàng (tùy chọn)'
+        })
+    )
+    customer_phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Số điện thoại (tùy chọn)'
+        })
+    )
+    payment_method = forms.ChoiceField(
+        choices=[
+            ('cash', 'Tiền mặt'),
+            ('transfer', 'Chuyển khoản')
+        ],
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        }),
+        initial='cash'
+    )
+    payment_status = forms.ChoiceField(
+        choices=[
+            ('finished', 'Đã thanh toán'),
+            ('owe', 'Còn nợ')
+        ],
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        }),
+        initial='finished'
+    )
+
+
+class SupplierForm(forms.ModelForm):
+    """Form for creating and editing suppliers."""
+    class Meta:
+        model = Supplier
+        fields = ['name', 'phone', 'address']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nhập tên nhà cung cấp'
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nhập số điện thoại'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Nhập địa chỉ'
+            }),
+        }
+        labels = {
+            'name': 'Tên nhà cung cấp',
+            'phone': 'Số điện thoại',
+            'address': 'Địa chỉ',
+        }
+
+
+class StaffUserForm(forms.ModelForm):
+    """Form for creating/editing staff users by manager."""
+    password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_active']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        pwd = self.cleaned_data.get('password')
+        if pwd:
+            user.set_password(pwd)
+        if commit:
+            user.save()
+        return user
