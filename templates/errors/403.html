@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>403 - Truy cập bị chặn</title>
+    <script>
+        window.onload = function() {
+            alert("Bạn không có quyền để truy cập trang này. Vui lòng liên hệ Quản lý của bạn để được cấp quyền truy cập.");
+            window.location.href = "/login/?next=" + encodeURIComponent(window.location.pathname);
+        };
+    </script>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif;">
+        <h1>403 Forbidden</h1>
+        <p>Đang chuyển hướng về trang đăng nhập...</p>
+    </div>
+</body>
+</html>

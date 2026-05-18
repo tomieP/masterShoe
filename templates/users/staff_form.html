@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{% if user_obj %}Sửa nhân viên{% else %}Tạo nhân viên{% endif %} - MasterShoe{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{% if user_obj %}Sửa nhân viên{% else %}Tạo nhân viên{% endif %}</h1>
+    <p class="page-subtitle">
+        {% if user_obj %}Cập nhật thông tin tài khoản <strong>{{ user_obj.username }}</strong>.{% else %}Tạo tài khoản nhân viên mới (mặc định thuộc nhóm Staff).{% endif %}
+    </p>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-10 col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">{% for e in form.username.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mật khẩu {% if not user_obj %}<span class="text-danger">*</span>{% else %}<span class="text-muted">(để trống nếu không đổi)</span>{% endif %}</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">{% for e in form.password.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Họ</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên</label>
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">{% for e in form.email.errors %}{{ e }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ form.is_active }}
+                        <label class="form-check-label">Kích hoạt tài khoản</label>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> {% if user_obj %}Cập nhật{% else %}Tạo mới{% endif %}
+                        </button>
+                        <a href="{% url 'staff_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

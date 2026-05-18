@@ -96,10 +96,100 @@
     </div>
 </div>
 
+<!-- Charts Section -->
+<div class="row mt-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Biểu đồ Doanh thu & Lợi nhuận</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="line-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Phân loại sản phẩm đã bán</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="pie-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Back to Dashboard -->
 <div class="mt-4">
     <a href="{% url 'dashboard' %}" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Quay về Dashboard
     </a>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Line Chart
+    const lineCtx = document.getElementById('line-chart');
+    if (lineCtx) {
+        const lineData = {{ line_chart_data|safe }};
+        new Chart(lineCtx, {
+            type: 'line',
+            data: lineData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN').format(value) + ' ₫';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Pie Chart
+    const pieCtx = document.getElementById('pie-chart');
+    if (pieCtx) {
+        const pieData = {{ pie_chart_data|safe }};
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: pieData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                return label + ': ' + value + ' cái';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

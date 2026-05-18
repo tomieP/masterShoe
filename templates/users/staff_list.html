@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Nhân viên - MasterShoe{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Quản lý Nhân viên</h1>
+        <p class="page-subtitle">Danh sách tài khoản nhân viên hệ thống.</p>
+    </div>
+    <a href="{% url 'staff_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Tạo tài khoản
+    </a>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" name="q" class="form-control" placeholder="Tìm theo tên đăng nhập, họ tên..." value="{{ q }}">
+                            <button type="submit" class="btn btn-outline-secondary">Tìm kiếm</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tên đăng nhập</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Vai trò</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td><strong>{{ u.username }}</strong></td>
+                                <td>{{ u.get_full_name|default:"—" }}</td>
+                                <td>{{ u.email|default:"—" }}</td>
+                                <td>
+                                    {% for g in u.groups.all %}
+                                    <span class="badge {% if g.name == 'Manager' %}bg-danger{% else %}bg-primary{% endif %}">{{ g.name }}</span>
+                                    {% empty %}
+                                    <span class="text-muted">—</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="text-center">
+                                    {% if u.is_active %}
+                                    <span class="badge bg-success">Hoạt động</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Vô hiệu</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'staff_edit' u.id %}" class="btn btn-outline-primary btn-sm" title="Chỉnh sửa">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    Không tìm thấy nhân viên nào.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Dashboard - MasterShoe{% endblock %}
+{% extends "base.html" %} {% load static humanize %} {% block title %}Dashboard - MasterShoe{% endblock %}
 {% block content %}
 <div class="page-header">
   <h1 class="page-title">Dashboard</h1>
@@ -7,13 +7,13 @@
 
 <!-- Statistics Cards -->
 <div class="row">
-  <div class="col-md-6 col-lg-3 mb-4">
+  <div class="col-md-{% if is_manager %}6 col-lg-3{% else %}4{% endif %} mb-4">
     <div class="card">
       <div class="card-body">
         <div class="d-flex align-items-center">
           <div>
             <h6 class="card-title text-muted mb-1">Doanh thu hôm nay</h6>
-            <h3 class="mb-0">{{ revenue|floatformat:0 }} ₫</h3>
+            <h3 class="mb-0">{{ revenue|floatformat:0|intcomma }} ₫</h3>
           </div>
           <div class="ms-auto">
             <i class="bi bi-graph-up text-success" style="font-size: 2rem"></i>
@@ -23,13 +23,14 @@
     </div>
   </div>
 
+  {% if is_manager %}
   <div class="col-md-6 col-lg-3 mb-4">
     <div class="card">
       <div class="card-body">
         <div class="d-flex align-items-center">
           <div>
             <h6 class="card-title text-muted mb-1">Lợi nhuận hôm nay</h6>
-            <h3 class="mb-0">{{ profit|floatformat:0 }} ₫</h3>
+            <h3 class="mb-0">{{ profit|floatformat:0|intcomma }} ₫</h3>
           </div>
           <div class="ms-auto">
             <i class="bi bi-cash-coin text-info" style="font-size: 2rem"></i>
@@ -38,8 +39,9 @@
       </div>
     </div>
   </div>
+  {% endif %}
 
-  <div class="col-md-6 col-lg-3 mb-4">
+  <div class="col-md-{% if is_manager %}6 col-lg-3{% else %}4{% endif %} mb-4">
     <div class="card">
       <div class="card-body">
         <div class="d-flex align-items-center">
@@ -58,6 +60,7 @@
     </div>
   </div>
 
+  {% if is_manager %}
   <div class="col-md-6 col-lg-3 mb-4">
     <div class="card">
       <div class="card-body">
@@ -76,8 +79,28 @@
       </div>
     </div>
   </div>
+  {% else %}
+  <div class="col-md-4 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div>
+            <h6 class="card-title text-muted mb-1">Kho hàng</h6>
+            <h3 class="mb-0">Xem</h3>
+          </div>
+          <div class="ms-auto">
+            <a href="{% url 'inventory_list' %}" class="btn btn-link">
+              <i class="bi bi-boxes text-secondary" style="font-size: 2rem"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
+{% if is_manager %}
 <!-- Charts Section -->
 <div class="row mt-4">
   <div class="col-lg-6 mb-4">
@@ -174,15 +197,7 @@
       </div>
       <div class="card-body">
         <div class="row g-2">
-          <div class="col-md-4">
-            <a
-              href="{% url 'reports_daily' %}"
-              class="btn btn-outline-primary btn-sm w-100"
-            >
-              <i class="bi bi-calendar-event"></i> Báo cáo theo ngày
-            </a>
-          </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <a
               href="{% url 'reports_period' %}"
               class="btn btn-outline-primary btn-sm w-100"
@@ -190,7 +205,7 @@
               <i class="bi bi-calendar-range"></i> Báo cáo theo khoảng thời gian
             </a>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <a
               href="{% url 'reports_top_products' %}"
               class="btn btn-outline-primary btn-sm w-100"
@@ -211,7 +226,7 @@
       if (revenueCtx) {
           const revenueData = {{ revenue_chart_data|safe }};
           new Chart(revenueCtx, {
-              type: 'bar',
+              type: 'line',
               data: revenueData,
               options: {
                   responsive: true,
@@ -268,4 +283,5 @@
       }
   });
 </script>
+{% endif %}
 {% endblock %}

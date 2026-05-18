@@ -18,7 +18,7 @@
                     <span class="badge bg-success">{{ variant.selling_price|floatformat:0 }}đ</span>
                     <button type="button"
                             class="btn btn-outline-success btn-sm"
-                            onclick="window.addToCart({{ variant.id }}, '{{ variant.product.name|escapejs }}', '{{ variant.color|escapejs }}', '{{ variant.size|escapejs }}', {{ variant.selling_price }})">
+                            onclick="window.addToCart(event, {{ variant.id }}, '{{ variant.product.name|escapejs }}', '{{ variant.color|escapejs }}', '{{ variant.size|escapejs }}', {{ variant.selling_price }})">
                         Thêm vào giỏ
                     </button>
                 </div>
