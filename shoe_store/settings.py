@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'management',
 ]
 
@@ -90,6 +91,12 @@ LANGUAGE_CODE = 'vi'  # Tiếng Việt
 TIME_ZONE = 'Asia/Ho_Chi_Minh'  # Múi giờ Việt Nam
 USE_I18N = True
 USE_TZ = True
+
+# Định dạng số theo kiểu Việt Nam (dùng dấu chấm cho hàng nghìn)
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = '.'
+NUMBER_GROUPING = 3
 
 # Static files
 STATIC_URL = '/static/'
